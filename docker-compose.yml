@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  db_videos:
+    image: mysql:5.7
+    container_name: mysql_db_videos
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example_password_videos
+      MYSQL_DATABASE: wordpress_videos
+      MYSQL_USER: wordpress_user_videos
+      MYSQL_PASSWORD: wordpress_password_videos
+    volumes:
+      - db_videos_data:/var/lib/mysql
+
+  wordpress_videos:
+    image: wordpress:latest
+    container_name: wordpress_videos
+    depends_on:
+      - db_videos
+    ports:
+      - "8081:80"  # Cambia el puerto para evitar conflictos
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db_videos:3306
+      WORDPRESS_DB_USER: wordpress_user_videos
+      WORDPRESS_DB_PASSWORD: wordpress_password_videos
+      WORDPRESS_DB_NAME: wordpress_videos
+    volumes:
+      - ./videos:/var/www/html  # Carpeta específica para este WordPress
+
+  phpmyadmin_videos:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_videos
+    depends_on:
+      - db_videos
+    ports:
+      - "9091:80"  # Cambia el puerto para evitar conflictos
+    restart: always
+    environment:
+      PMA_HOST: db_videos
+      MYSQL_ROOT_PASSWORD: example_password_videos
+
+volumes:
+  db_videos_data:
